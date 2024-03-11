@@ -1,8 +1,14 @@
 package com.matthewblit.carShow.security;
 
+import com.matthewblit.carShow.repository.UserCredentialsRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -18,6 +24,12 @@ import java.security.SecureRandom;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    private final UserCredentialsRepository userCredentialsRepository;
+
+    public SecurityConfig(UserCredentialsRepository userCredentialsRepository) {
+        this.userCredentialsRepository = userCredentialsRepository;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
@@ -28,7 +40,7 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        UserDetails admin = User.builder()
+        /*UserDetails admin = User.builder()
                 .username("admin")
                 .password(passwordEncoder().encode("adminPass"))
                 .roles("ADMIN")
@@ -38,7 +50,22 @@ public class SecurityConfig {
                 .password(passwordEncoder().encode("userPass"))
                 .roles("USER")
                 .build();
-        return new InMemoryUserDetailsManager(admin,user);
+        return new InMemoryUserDetailsManager(admin,user);*/
+        return username -> userCredentialsRepository.findByEmail(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(userDetailsService());
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        return authenticationProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
