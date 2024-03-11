@@ -2,14 +2,17 @@ package com.matthewblit.carShow;
 
 import com.matthewblit.carShow.entity.Car;
 import com.matthewblit.carShow.entity.Owner;
+import com.matthewblit.carShow.entity.UserCredentials;
 import com.matthewblit.carShow.repository.CarRepository;
 import com.matthewblit.carShow.repository.OwnerRepository;
+import com.matthewblit.carShow.repository.UserCredentialsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -24,6 +27,12 @@ public class CarShowApplication implements CommandLineRunner {
 
 	@Autowired
 	private OwnerRepository ownerRepository;
+
+	@Autowired
+	private UserCredentialsRepository userCredentialsRepository;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	private static final Logger logger = LoggerFactory.getLogger(CarShowApplication.class);
 	public static void main(String[] args) {
 		//What is RESTful API
@@ -55,6 +64,11 @@ public class CarShowApplication implements CommandLineRunner {
 		carRepository.save(car);
 		// Using the Stream API method forEach of it and loop it through the logger.info also showing the Owner
 		carRepository.findAll().forEach(x -> logger.info(x.toString()));
-
+		UserCredentials userCredentials = userCredentialsRepository.save(new UserCredentials(
+				"admin@carshow.com",
+				passwordEncoder.encode("Gudmord92!"),
+				"ADMIN"
+		));
+		logger.info(userCredentials.toString());
 	}
 }

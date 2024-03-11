@@ -3,8 +3,11 @@ package com.matthewblit.carShow.service;
 import com.matthewblit.carShow.dto.AuthRequest;
 import com.matthewblit.carShow.dto.AuthResponse;
 import com.matthewblit.carShow.entity.UserCredentials;
+import com.matthewblit.carShow.exception.ResourceAccessException;
 import com.matthewblit.carShow.repository.UserCredentialsRepository;
 import com.matthewblit.carShow.security.JwtService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    private final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
     public AuthServiceImpl(UserCredentialsRepository userCredentialsRepository,
                            JwtService jwtService,
                            AuthenticationManager authenticationManager) {
@@ -29,8 +33,9 @@ public class AuthServiceImpl implements AuthService {
                 authRequest.email(),
                 authRequest.password()
         ));
+        logger.info(authRequest.toString());
         UserCredentials userCredentials = userCredentialsRepository.findByEmail(authRequest.email())
-                .orElseThrow();
+                .orElseThrow(() -> new ResourceAccessException("Error"));
         String jwt = jwtService.generateToken(userCredentials.getEmail());
         return new AuthResponse(jwt);
     }
