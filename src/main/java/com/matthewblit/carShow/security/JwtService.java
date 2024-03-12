@@ -17,8 +17,8 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    private final String SECRET = "a9f8893f39102da418c104819105d7ae604ff2b3";
-    private final double EXPIRATION = 7200000;
+    private final String SECRET = "KHMBYL/uR7UC+pYf8mlnRtbTGNNT5uhxqREoRtm2ais=";
+    private final long EXPIRATION = 7200000;
     private final UserCredentialsService userCredentialsService;
 
     public JwtService(UserCredentialsService userCredentialsService) {
@@ -41,8 +41,8 @@ public class JwtService {
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(String.valueOf(System.currentTimeMillis() + EXPIRATION)))
-                .signWith(getSigninKey(), SignatureAlgorithm.HS512)
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .signWith(getSigninKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
