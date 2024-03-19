@@ -35,7 +35,7 @@ public class CarController {
     //The GetMapping will mark this path for the GET http request
     //Most cases will not require a parameter but could require
     public ResponseEntity<List<Car>> getCars() {
-        return new ResponseEntity<>(carService.getAllCars(), HttpStatus.FOUND);
+        return new ResponseEntity<>(carService.getAllCars(), HttpStatus.OK);
     }
 
     //Old Way Robust and more control

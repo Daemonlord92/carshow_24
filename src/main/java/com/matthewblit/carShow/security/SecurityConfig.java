@@ -21,8 +21,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -44,7 +48,7 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(c -> c.anyRequest().authenticated())
                 .build();*/
-        http
+        /*http
                 .csrf(c -> c.disable())
                 .cors(c -> c.disable())
                 .authorizeHttpRequests(htp -> htp
@@ -54,11 +58,27 @@ public class SecurityConfig {
                         .authenticated())
                 .sessionManagement(ses -> ses.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);*/
+        http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(crsf -> crsf.disable())
+                .authorizeHttpRequests(ar -> ar.anyRequest().permitAll());
 
         return http.build();
     }
 
-
+    @Bean
+    CorsConfigurationSource corsConfigurationSource(){
+        UrlBasedCorsConfigurationSource source = new
+                UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(Arrays.asList("*"));
+        config.setAllowedMethods(Arrays.asList("*"));
+        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setAllowCredentials(false);
+        config.applyPermitDefaultValues();
+        source.registerCorsConfiguration("/**",config);
+        return source;
+    }
 
 }

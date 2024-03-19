@@ -8,6 +8,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ public class JwtService {
     private final String SECRET = "KHMBYL/uR7UC+pYf8mlnRtbTGNNT5uhxqREoRtm2ais=";
     private final long EXPIRATION = 7200000;
     private final UserCredentialsService userCredentialsService;
+
+    private final Logger logger = LoggerFactory.getLogger(JwtService.class);
 
     public JwtService(UserCredentialsService userCredentialsService) {
         this.userCredentialsService = userCredentialsService;
@@ -35,6 +39,7 @@ public class JwtService {
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        logger.info(String.valueOf(System.currentTimeMillis() + EXPIRATION));
         return Jwts
                 //Setups the JWT token to send to the front end or client application
                 .builder()

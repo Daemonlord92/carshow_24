@@ -34,9 +34,7 @@ public class AuthServiceImpl implements AuthService {
                 authRequest.password()
         ));
         logger.info(authRequest.toString());
-        UserCredentials userCredentials = userCredentialsRepository.findByEmail(authRequest.email())
-                .orElseThrow(() -> new ResourceAccessException("Error"));
-        String jwt = jwtService.generateToken(userCredentials.getEmail());
+        String jwt = jwtService.generateToken(authRequest.email());
         return new AuthResponse(jwt);
     }
 }
