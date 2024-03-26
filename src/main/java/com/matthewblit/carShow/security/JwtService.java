@@ -19,7 +19,7 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    private final String SECRET = "KHMBYL/uR7UC+pYf8mlnRtbTGNNT5uhxqREoRtm2ais=";
+    private final String SECRET = "51ce84faf2b1a5960314a924c0836a17f6c3e0307843f00dc6d8b46cfcda1594";
     private final long EXPIRATION = 7200000;
     private final UserCredentialsService userCredentialsService;
 
@@ -38,15 +38,23 @@ public class JwtService {
         return generateToken(claims, userCredentials.get());
     }
 
+    public String generateToken(UserDetails userDetails) {
+        UserCredentials userCredentials = userCredentialsService.getUserByEmail(userDetails.getUsername())
+                .orElseThrow();
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", userCredentials.getRole());
+        return generateToken(claims, userCredentials);
+    }
+
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         logger.info(String.valueOf(System.currentTimeMillis() + EXPIRATION));
         return Jwts
                 //Setups the JWT token to send to the front end or client application
                 .builder()
-                .claims(extraClaims)
-                .subject(userDetails.getUsername())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date((System.currentTimeMillis() + EXPIRATION)))
                 .signWith(getSigninKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -75,7 +83,7 @@ public class JwtService {
 
     private Claims extractAllClaims(String token) {
         return Jwts
-                .parser()
+                .parserBuilder()
                 .setSigningKey(getSigninKey())
                 .build()
                 .parseClaimsJws(token)

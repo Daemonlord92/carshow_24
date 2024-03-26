@@ -5,6 +5,8 @@ import com.matthewblit.carShow.exception.ResourceAccessException;
 import com.matthewblit.carShow.service.CarService;
 import org.apache.coyote.BadRequestException;
 import org.apache.coyote.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,8 @@ import java.util.List;
 //Allows us to set the path for the endpoint start
 @RequestMapping("/api/v1/car")
 public class CarController {
+
+    private final Logger logger = LoggerFactory.getLogger(CarController.class);
     //Bring in the CarService object to be used by the controller
     private final CarService carService;
 
@@ -27,6 +31,7 @@ public class CarController {
     //The PostMapping will mark this path expecting a POST http request from the front end.
     //It should include either a JSON body Object or ParameterURL to get the data
     public ResponseEntity<?> postNewCard(@RequestBody Car car) {
+        logger.info(car.toString());
         carService.createCar(car);
         return new ResponseEntity<>("Car Created", HttpStatus.CREATED);
     }
@@ -44,5 +49,11 @@ public class CarController {
     @PutMapping("/{id}")
     public ResponseEntity<Car> postUpdateCar(@PathVariable Long id, @RequestBody Car car) {
         return new ResponseEntity<>(carService.updateCar(id, car), HttpStatus.ACCEPTED);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteCar(@PathVariable Long id) {
+        carService.deleteCar(id);
+        return new ResponseEntity<>("Car Deleted" , HttpStatus.OK);
     }
 }
